@@ -10,5 +10,7 @@ public interface IUserServicePort {
 
     User createEmployee(User user);
 
+    User createClient(User user);
+
     Optional<User> getUserById(Long id);
 }
