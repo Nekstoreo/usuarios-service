@@ -24,7 +24,7 @@ public class UserEntity {
     @Column(name = "phone", nullable = false, length = 13)
     private String phone;
 
-    @Column(name = "birth_date", nullable = false)
+    @Column(name = "birth_date")
     private LocalDate birthDate;
 
     @Column(name = "email", nullable = false, unique = true, length = 255)
@@ -36,6 +36,9 @@ public class UserEntity {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false)
     private RoleEntity role;
+
+    @Column(name = "restaurant_id")
+    private Long restaurantId;
 
     public UserEntity() {
     }
@@ -127,6 +130,14 @@ public class UserEntity {
         this.role = role;
     }
 
+    public Long getRestaurantId() {
+        return restaurantId;
+    }
+
+    public void setRestaurantId(Long restaurantId) {
+        this.restaurantId = restaurantId;
+    }
+
     public static class UserEntityBuilder {
         private Long id;
         private String firstName;
@@ -137,6 +148,7 @@ public class UserEntity {
         private String email;
         private String password;
         private RoleEntity role;
+        private Long restaurantId;
 
         public UserEntityBuilder id(Long id) {
             this.id = id;
@@ -183,10 +195,16 @@ public class UserEntity {
             return this;
         }
 
+        public UserEntityBuilder restaurantId(Long restaurantId) {
+            this.restaurantId = restaurantId;
+            return this;
+        }
+
         public UserEntity build() {
             UserEntity userEntity = new UserEntity(firstName, lastName, identityDocument, phone, birthDate, email, password);
             userEntity.setId(id);
             userEntity.setRole(role);
+            userEntity.setRestaurantId(restaurantId);
             return userEntity;
         }
     }
