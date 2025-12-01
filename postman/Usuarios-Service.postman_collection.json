@@ -11,7 +11,7 @@
       "name": "Authentication",
       "item": [
         {
-          "name": "Login - Success",
+          "name": "Login - Admin",
           "event": [
             {
               "listen": "test",
@@ -49,8 +49,136 @@
                 "auth",
                 "login"
               ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login - Owner",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('ownerToken', jsonData.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"juan.perez@email.com\",\n  \"password\": \"secret123\"\n}"
             },
-            "description": "Login with admin credentials. Expected: 200 OK with JWT token"
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login - Employee",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('employeeToken', jsonData.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"carlos.garcia@email.com\",\n  \"password\": \"employee123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login - Client",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('clientToken', jsonData.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"maria.rodriguez@email.com\",\n  \"password\": \"client123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            }
           },
           "response": []
         }
@@ -94,8 +222,7 @@
                 "users",
                 "owners"
               ]
-            },
-            "description": "Creates a new owner with admin authorization. Expected: 201 Created. Requires admin token."
+            }
           },
           "response": []
         },
@@ -107,7 +234,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{authToken}}",
+                  "value": "{{ownerToken}}",
                   "type": "string"
                 }
               ]
@@ -134,8 +261,36 @@
                 "users",
                 "employees"
               ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Client - Success",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"María\",\n  \"lastName\": \"Rodríguez\",\n  \"identityDocument\": \"456789123\",\n  \"phone\": \"+573005554321\",\n  \"email\": \"maria.rodriguez@email.com\",\n  \"password\": \"client123\"\n}"
             },
-            "description": "Creates a new employee for the restaurant that belongs to the authenticated owner. Expected: 201 Created with EMPLOYEE role."
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/clients",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "clients"
+              ]
+            }
           },
           "response": []
         },
@@ -165,8 +320,7 @@
                 "users",
                 "1"
               ]
-            },
-            "description": "Retrieves a user by their ID. Expected: 200 OK if found, 404 Not Found if not exists. Requires authentication."
+            }
           },
           "response": []
         }
@@ -181,6 +335,21 @@
     },
     {
       "key": "authToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "ownerToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "employeeToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "clientToken",
       "value": "",
       "type": "string"
     }
