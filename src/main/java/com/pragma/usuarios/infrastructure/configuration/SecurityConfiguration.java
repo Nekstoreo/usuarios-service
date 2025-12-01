@@ -53,8 +53,10 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.POST, "/api/v1/users/owners").hasRole("ADMIN")
                         // Employee creation - only OWNER
                         .requestMatchers(HttpMethod.POST, "/api/v1/users/employees").hasRole("OWNER")
-                        // Get user by ID - authenticated users
-                        .requestMatchers(HttpMethod.GET, "/api/v1/users/**").authenticated()
+                        // Client creation - public (no authentication required)
+                        .requestMatchers(HttpMethod.POST, "/api/v1/users/clients").permitAll()
+                        // Get user by ID - allow for service-to-service communication
+                        .requestMatchers(HttpMethod.GET, "/api/v1/users/{id}").permitAll()
                         // Any other request requires authentication
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
