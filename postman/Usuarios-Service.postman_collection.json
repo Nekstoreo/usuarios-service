@@ -1,7 +1,7 @@
 {
   "info": {
     "_postman_id": "a4e4e56c-2b0a-4495-be13-f6e6cff29d33",
-    "name": "Usuarios Service - HU01",
+    "name": "Usuarios Service API",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "43705198",
     "_collection_link": "https://nestor-9731994.postman.co/workspace/Nestor's-Workspace~ca5ad7a8-5f82-4ca4-8762-61a8b214cd7c/collection/43705198-a4e4e56c-2b0a-4495-be13-f6e6cff29d33?action=share&source=collection_link&creator=43705198"
@@ -34,6 +34,27 @@
           ]
         },
         "description": "Creates a new owner with valid data. Expected: 201 Created"
+      },
+      "response": []
+    },
+    {
+      "name": "Get User By ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/users/1",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "users",
+            "1"
+          ]
+        },
+        "description": "Retrieves a user by their ID. Expected: 200 OK if found, 404 Not Found if not exists"
       },
       "response": []
     }
