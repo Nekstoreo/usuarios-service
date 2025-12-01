@@ -9,6 +9,7 @@ import com.pragma.usuarios.domain.model.Role;
 import com.pragma.usuarios.domain.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,9 +17,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -96,71 +97,115 @@ class UserHandlerTest {
                 .build();
     }
 
-    @Test
-    @DisplayName("Should create owner and return response")
-    void shouldCreateOwnerAndReturnResponse() {
-        // Arrange
-        when(userRequestMapper.toUser(createOwnerRequest)).thenReturn(user);
-        when(userServicePort.createOwner(user)).thenReturn(savedUser);
-        when(userResponseMapper.toResponse(savedUser)).thenReturn(userResponse);
+    @Nested
+    @DisplayName("Create Owner Tests")
+    class CreateOwnerTests {
 
-        // Act
-        UserResponse result = userHandler.createOwner(createOwnerRequest);
+        @Test
+        @DisplayName("Should create owner and return response")
+        void shouldCreateOwnerAndReturnResponse() {
+            // Arrange
+            when(userRequestMapper.toUser(createOwnerRequest)).thenReturn(user);
+            when(userServicePort.createOwner(user)).thenReturn(savedUser);
+            when(userResponseMapper.toResponse(savedUser)).thenReturn(userResponse);
 
-        // Assert
-        assertNotNull(result);
-        assertEquals(1L, result.getId());
-        assertEquals("Juan", result.getFirstName());
-        assertEquals(OWNER_LAST_NAME, result.getLastName());
-        assertEquals(OWNER_ROLE, result.getRole());
+            // Act
+            UserResponse result = userHandler.createOwner(createOwnerRequest);
 
-        verify(userRequestMapper).toUser(createOwnerRequest);
-        verify(userServicePort).createOwner(user);
-        verify(userResponseMapper).toResponse(savedUser);
+            // Assert
+            assertNotNull(result);
+            assertEquals(1L, result.getId());
+            assertEquals("Juan", result.getFirstName());
+            assertEquals(OWNER_LAST_NAME, result.getLastName());
+            assertEquals(OWNER_ROLE, result.getRole());
+
+            verify(userRequestMapper).toUser(createOwnerRequest);
+            verify(userServicePort).createOwner(user);
+            verify(userResponseMapper).toResponse(savedUser);
+        }
+
+        @Test
+        @DisplayName("Should call mapper to convert request to domain model")
+        void shouldCallMapperToConvertRequestToDomainModel() {
+            // Arrange
+            when(userRequestMapper.toUser(any(CreateOwnerRequest.class))).thenReturn(user);
+            when(userServicePort.createOwner(any(User.class))).thenReturn(savedUser);
+            when(userResponseMapper.toResponse(any(User.class))).thenReturn(userResponse);
+
+            // Act
+            userHandler.createOwner(createOwnerRequest);
+
+            // Assert
+            verify(userRequestMapper).toUser(createOwnerRequest);
+        }
+
+        @Test
+        @DisplayName("Should call service port to create owner")
+        void shouldCallServicePortToCreateOwner() {
+            // Arrange
+            when(userRequestMapper.toUser(any(CreateOwnerRequest.class))).thenReturn(user);
+            when(userServicePort.createOwner(any(User.class))).thenReturn(savedUser);
+            when(userResponseMapper.toResponse(any(User.class))).thenReturn(userResponse);
+
+            // Act
+            userHandler.createOwner(createOwnerRequest);
+
+            // Assert
+            verify(userServicePort).createOwner(user);
+        }
+
+        @Test
+        @DisplayName("Should call mapper to convert saved user to response")
+        void shouldCallMapperToConvertSavedUserToResponse() {
+            // Arrange
+            when(userRequestMapper.toUser(any(CreateOwnerRequest.class))).thenReturn(user);
+            when(userServicePort.createOwner(any(User.class))).thenReturn(savedUser);
+            when(userResponseMapper.toResponse(any(User.class))).thenReturn(userResponse);
+
+            // Act
+            userHandler.createOwner(createOwnerRequest);
+
+            // Assert
+            verify(userResponseMapper).toResponse(savedUser);
+        }
     }
 
-    @Test
-    @DisplayName("Should call mapper to convert request to domain model")
-    void shouldCallMapperToConvertRequestToDomainModel() {
-        // Arrange
-        when(userRequestMapper.toUser(any(CreateOwnerRequest.class))).thenReturn(user);
-        when(userServicePort.createOwner(any(User.class))).thenReturn(savedUser);
-        when(userResponseMapper.toResponse(any(User.class))).thenReturn(userResponse);
+    @Nested
+    @DisplayName("Get User By ID Tests")
+    class GetUserByIdTests {
 
-        // Act
-        userHandler.createOwner(createOwnerRequest);
+        @Test
+        @DisplayName("Should return user response when user exists")
+        void shouldReturnUserResponseWhenUserExists() {
+            // Arrange
+            Long userId = 1L;
+            when(userServicePort.getUserById(userId)).thenReturn(Optional.of(savedUser));
+            when(userResponseMapper.toResponse(savedUser)).thenReturn(userResponse);
 
-        // Assert
-        verify(userRequestMapper).toUser(createOwnerRequest);
-    }
+            // Act
+            Optional<UserResponse> result = userHandler.getUserById(userId);
 
-    @Test
-    @DisplayName("Should call service port to create owner")
-    void shouldCallServicePortToCreateOwner() {
-        // Arrange
-        when(userRequestMapper.toUser(any(CreateOwnerRequest.class))).thenReturn(user);
-        when(userServicePort.createOwner(any(User.class))).thenReturn(savedUser);
-        when(userResponseMapper.toResponse(any(User.class))).thenReturn(userResponse);
+            // Assert
+            assertTrue(result.isPresent());
+            assertEquals(userId, result.get().getId());
+            assertEquals(OWNER_EMAIL, result.get().getEmail());
+            verify(userServicePort).getUserById(userId);
+            verify(userResponseMapper).toResponse(savedUser);
+        }
 
-        // Act
-        userHandler.createOwner(createOwnerRequest);
+        @Test
+        @DisplayName("Should return empty when user does not exist")
+        void shouldReturnEmptyWhenUserDoesNotExist() {
+            // Arrange
+            Long userId = 999L;
+            when(userServicePort.getUserById(userId)).thenReturn(Optional.empty());
 
-        // Assert
-        verify(userServicePort).createOwner(user);
-    }
+            // Act
+            Optional<UserResponse> result = userHandler.getUserById(userId);
 
-    @Test
-    @DisplayName("Should call mapper to convert saved user to response")
-    void shouldCallMapperToConvertSavedUserToResponse() {
-        // Arrange
-        when(userRequestMapper.toUser(any(CreateOwnerRequest.class))).thenReturn(user);
-        when(userServicePort.createOwner(any(User.class))).thenReturn(savedUser);
-        when(userResponseMapper.toResponse(any(User.class))).thenReturn(userResponse);
-
-        // Act
-        userHandler.createOwner(createOwnerRequest);
-
-        // Assert
-        verify(userResponseMapper).toResponse(savedUser);
+            // Assert
+            assertTrue(result.isEmpty());
+            verify(userServicePort).getUserById(userId);
+        }
     }
 }

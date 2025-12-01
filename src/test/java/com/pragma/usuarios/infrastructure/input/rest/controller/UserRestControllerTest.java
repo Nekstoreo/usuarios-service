@@ -22,9 +22,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -278,6 +280,57 @@ class UserRestControllerTest {
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isConflict())
                     .andExpect(jsonPath(MESSAGE_JSON_PATH).value("A user already exists with email: " + OWNER_EMAIL));
+        }
+    }
+
+    @Nested
+    @DisplayName("Get User By ID")
+    class GetUserByIdTests {
+
+        @Test
+        @DisplayName("Should return user when found by ID")
+        void shouldReturnUserWhenFoundById() throws Exception {
+            // Arrange
+            Long userId = 1L;
+            UserResponse response = UserResponse.builder()
+                    .id(userId)
+                    .firstName("John")
+                    .lastName("Doe")
+                    .identityDocument(OWNER_DOCUMENT)
+                    .phone(OWNER_PHONE)
+                    .birthDate(LocalDate.of(1990, 5, 15))
+                    .email(OWNER_EMAIL)
+                    .role("OWNER")
+                    .build();
+
+            when(userHandler.getUserById(userId)).thenReturn(Optional.of(response));
+
+            // Act & Assert
+            mockMvc.perform(get(BASE_URL + "/" + userId)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.id").value(userId))
+                    .andExpect(jsonPath("$.firstName").value("John"))
+                    .andExpect(jsonPath("$.email").value(OWNER_EMAIL))
+                    .andExpect(jsonPath("$.role").value("OWNER"));
+
+            verify(userHandler).getUserById(userId);
+        }
+
+        @Test
+        @DisplayName("Should return 404 when user not found by ID")
+        void shouldReturn404WhenUserNotFoundById() throws Exception {
+            // Arrange
+            Long userId = 999L;
+            when(userHandler.getUserById(userId)).thenReturn(Optional.empty());
+
+            // Act & Assert
+            mockMvc.perform(get(BASE_URL + "/" + userId)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isNotFound());
+
+            verify(userHandler).getUserById(userId);
         }
     }
 }
