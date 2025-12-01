@@ -23,5 +23,6 @@ public class UserResponse {
     private LocalDate birthDate;
     private String email;
     private String role;
+    private Long restaurantId;
 
 }

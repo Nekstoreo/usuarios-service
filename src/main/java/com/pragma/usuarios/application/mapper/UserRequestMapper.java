@@ -1,5 +1,6 @@
 package com.pragma.usuarios.application.mapper;
 
+import com.pragma.usuarios.application.dto.request.CreateEmployeeRequest;
 import com.pragma.usuarios.application.dto.request.CreateOwnerRequest;
 import com.pragma.usuarios.domain.model.User;
 import org.mapstruct.Mapper;
@@ -13,5 +14,11 @@ public interface UserRequestMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "role", ignore = true)
+    @Mapping(target = "restaurantId", ignore = true)
     User toUser(CreateOwnerRequest createOwnerRequest);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "role", ignore = true)
+    @Mapping(target = "birthDate", ignore = true)
+    User toUser(CreateEmployeeRequest createEmployeeRequest);
 }
