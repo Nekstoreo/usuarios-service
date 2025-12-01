@@ -342,4 +342,43 @@ class UserUseCaseTest {
             verify(passwordEncoderPort).encode(rawPassword);
         }
     }
+
+    @Nested
+    @DisplayName("Get User By ID")
+    class GetUserByIdTests {
+
+        @Test
+        @DisplayName("Should return user when found by ID")
+        void shouldReturnUserWhenFoundById() {
+            // Arrange
+            Long userId = 1L;
+            validUser.setId(userId);
+            validUser.setRole(ownerRole);
+            when(userPersistencePort.findById(userId)).thenReturn(Optional.of(validUser));
+
+            // Act
+            Optional<User> result = userUseCase.getUserById(userId);
+
+            // Assert
+            assertTrue(result.isPresent());
+            assertEquals(userId, result.get().getId());
+            assertEquals(validUser.getEmail(), result.get().getEmail());
+            verify(userPersistencePort).findById(userId);
+        }
+
+        @Test
+        @DisplayName("Should return empty when user not found by ID")
+        void shouldReturnEmptyWhenUserNotFoundById() {
+            // Arrange
+            Long userId = 999L;
+            when(userPersistencePort.findById(userId)).thenReturn(Optional.empty());
+
+            // Act
+            Optional<User> result = userUseCase.getUserById(userId);
+
+            // Assert
+            assertTrue(result.isEmpty());
+            verify(userPersistencePort).findById(userId);
+        }
+    }
 }
