@@ -30,6 +30,16 @@ jwt:
   secret: ${JWT_SECRET:plazoleta-secret-key-for-jwt-token-generation-must-be-at-least-256-bits}
   expiration-ms: ${JWT_EXPIRATION:86400000}
 
+# Admin initialization
+admin:
+  email: ${ADMIN_EMAIL:admin@plazoleta.com}
+  password: ${ADMIN_PASSWORD:admin123}
+  first-name: ${ADMIN_FIRST_NAME:Admin}
+  last-name: ${ADMIN_LAST_NAME:System}
+  identity-document: ${ADMIN_IDENTITY_DOCUMENT:1234567890}
+  phone: ${ADMIN_PHONE:+573000000000}
+  birth-date: ${ADMIN_BIRTH_DATE:1990-01-01}
+
 # OpenAPI / Swagger
 springdoc:
   api-docs:
