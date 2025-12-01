@@ -100,6 +100,46 @@
           "response": []
         },
         {
+          "name": "Create Employee - Success (Owner Auth)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Carlos\",\n  \"lastName\": \"García\",\n  \"identityDocument\": \"987654321\",\n  \"phone\": \"+573009876543\",\n  \"email\": \"carlos.garcia@email.com\",\n  \"password\": \"employee123\",\n  \"restaurantId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/employees",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "employees"
+              ]
+            },
+            "description": "Creates a new employee for the restaurant that belongs to the authenticated owner. Expected: 201 Created with EMPLOYEE role."
+          },
+          "response": []
+        },
+        {
           "name": "Get User By ID",
           "request": {
             "auth": {
