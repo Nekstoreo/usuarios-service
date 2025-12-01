@@ -38,7 +38,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler({InvalidEmailException.class, InvalidPhoneException.class,
-            InvalidDocumentException.class, UserUnderageException.class})
+            InvalidDocumentException.class, UserUnderageException.class, InvalidRestaurantException.class})
     public ResponseEntity<ErrorResponse> handleValidationDomainExceptions(
             DomainException ex, HttpServletRequest request) {
 

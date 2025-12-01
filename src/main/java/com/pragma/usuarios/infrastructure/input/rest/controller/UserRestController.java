@@ -1,5 +1,6 @@
 package com.pragma.usuarios.infrastructure.input.rest.controller;
 
+import com.pragma.usuarios.application.dto.request.CreateEmployeeRequest;
 import com.pragma.usuarios.application.dto.request.CreateOwnerRequest;
 import com.pragma.usuarios.application.dto.response.UserResponse;
 import com.pragma.usuarios.application.handler.IUserHandler;
@@ -8,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -31,7 +33,8 @@ public class UserRestController {
     }
 
     @Operation(summary = "Create owner",
-            description = "Creates a user account with OWNER role")
+            description = "Creates a user account with OWNER role. Only ADMIN can perform this action.",
+            security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201",
                     description = "Owner created successfully",
@@ -39,6 +42,12 @@ public class UserRestController {
                             schema = @Schema(implementation = UserResponse.class))),
             @ApiResponse(responseCode = "400",
                     description = "Invalid input data",
+                    content = @Content),
+            @ApiResponse(responseCode = "401",
+                    description = "Unauthorized - Authentication required",
+                    content = @Content),
+            @ApiResponse(responseCode = "403",
+                    description = "Forbidden - Only ADMIN role can create owners",
                     content = @Content),
             @ApiResponse(responseCode = "409",
                     description = "User already exists with the provided email or document",
@@ -50,13 +59,44 @@ public class UserRestController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @Operation(summary = "Create employee",
+            description = "Creates a user account with EMPLOYEE role. Only OWNER can perform this action.",
+            security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201",
+                    description = "Employee created successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = UserResponse.class))),
+            @ApiResponse(responseCode = "400",
+                    description = "Invalid input data",
+                    content = @Content),
+            @ApiResponse(responseCode = "401",
+                    description = "Unauthorized - Authentication required",
+                    content = @Content),
+            @ApiResponse(responseCode = "403",
+                    description = "Forbidden - Only OWNER role can create employees",
+                    content = @Content),
+            @ApiResponse(responseCode = "409",
+                    description = "User already exists with the provided email or document",
+                    content = @Content)
+    })
+    @PostMapping("/employees")
+    public ResponseEntity<UserResponse> createEmployee(@Valid @RequestBody CreateEmployeeRequest request) {
+        UserResponse response = userHandler.createEmployee(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
     @Operation(summary = "Get user by ID",
-            description = "Retrieves a user by their ID")
+            description = "Retrieves a user by their ID",
+            security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     description = "User found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = UserResponse.class))),
+            @ApiResponse(responseCode = "401",
+                    description = "Unauthorized - Authentication required",
+                    content = @Content),
             @ApiResponse(responseCode = "404",
                     description = "User not found",
                     content = @Content)

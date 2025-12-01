@@ -51,6 +51,8 @@ public class SecurityConfiguration {
                         ).permitAll()
                         // Owner creation - only ADMIN
                         .requestMatchers(HttpMethod.POST, "/api/v1/users/owners").hasRole("ADMIN")
+                        // Employee creation - only OWNER
+                        .requestMatchers(HttpMethod.POST, "/api/v1/users/employees").hasRole("OWNER")
                         // Get user by ID - authenticated users
                         .requestMatchers(HttpMethod.GET, "/api/v1/users/**").authenticated()
                         // Any other request requires authentication
