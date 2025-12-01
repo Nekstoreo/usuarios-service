@@ -16,14 +16,14 @@
             {
               "listen": "test",
               "script": {
-                "exec": [
-                  "if (pm.response.code === 200) {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.collectionVariables.set('authToken', jsonData.token);",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
+                  "exec": [
+                    "if (pm.response.code === 200) {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.globals.set('authToken', jsonData.token);",
+                    "}"
+                  ],
+                  "type": "text/javascript"
+                }
             }
           ],
           "request": {
@@ -59,14 +59,14 @@
             {
               "listen": "test",
               "script": {
-                "exec": [
-                  "if (pm.response.code === 200) {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.collectionVariables.set('ownerToken', jsonData.token);",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
+                  "exec": [
+                    "if (pm.response.code === 200) {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.globals.set('ownerToken', jsonData.token);",
+                    "}"
+                  ],
+                  "type": "text/javascript"
+                }
             }
           ],
           "request": {
@@ -102,14 +102,14 @@
             {
               "listen": "test",
               "script": {
-                "exec": [
-                  "if (pm.response.code === 200) {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.collectionVariables.set('employeeToken', jsonData.token);",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
+                  "exec": [
+                    "if (pm.response.code === 200) {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.globals.set('employeeToken', jsonData.token);",
+                    "}"
+                  ],
+                  "type": "text/javascript"
+                }
             }
           ],
           "request": {
@@ -145,14 +145,14 @@
             {
               "listen": "test",
               "script": {
-                "exec": [
-                  "if (pm.response.code === 200) {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.collectionVariables.set('clientToken', jsonData.token);",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
+                  "exec": [
+                    "if (pm.response.code === 200) {",
+                    "    var jsonData = pm.response.json();",
+                    "    pm.globals.set('clientToken', jsonData.token);",
+                    "}"
+                  ],
+                  "type": "text/javascript"
+                }
             }
           ],
           "request": {
@@ -331,26 +331,6 @@
     {
       "key": "baseUrl",
       "value": "http://localhost:8081",
-      "type": "string"
-    },
-    {
-      "key": "authToken",
-      "value": "",
-      "type": "string"
-    },
-    {
-      "key": "ownerToken",
-      "value": "",
-      "type": "string"
-    },
-    {
-      "key": "employeeToken",
-      "value": "",
-      "type": "string"
-    },
-    {
-      "key": "clientToken",
-      "value": "",
       "type": "string"
     }
   ]
