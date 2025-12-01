@@ -27,10 +27,12 @@ import static org.mockito.Mockito.*;
 class UserUseCaseTest {
 
     private static final String OWNER_ROLE_NAME = "OWNER";
+    private static final String EMPLOYEE_ROLE_NAME = "EMPLOYEE";
     private static final String ENCODED_PASSWORD = "encodedPassword";
     private static final String OWNER_EMAIL = "juan.perez@email.com";
     private static final String OWNER_LAST_NAME = "Pérez";
     private static final String OWNER_IDENTITY_DOCUMENT = "123456789";
+    private static final Long RESTAURANT_ID = 1L;
 
     @Mock
     private IUserPersistencePort userPersistencePort;
@@ -379,6 +381,174 @@ class UserUseCaseTest {
             // Assert
             assertTrue(result.isEmpty());
             verify(userPersistencePort).findById(userId);
+        }
+    }
+
+    @Nested
+    @DisplayName("Create Employee - Success Cases")
+    class CreateEmployeeSuccessCases {
+
+        private User validEmployee;
+        private Role employeeRole;
+
+        @BeforeEach
+        void setUp() {
+            employeeRole = new Role(3L, EMPLOYEE_ROLE_NAME, "Restaurant employee");
+
+            validEmployee = new User();
+            validEmployee.setFirstName("Carlos");
+            validEmployee.setLastName("García");
+            validEmployee.setIdentityDocument("987654321");
+            validEmployee.setPhone("+573009876543");
+            validEmployee.setEmail("carlos.garcia@email.com");
+            validEmployee.setPassword("employee123");
+            validEmployee.setRestaurantId(RESTAURANT_ID);
+        }
+
+        @Test
+        @DisplayName("Should create employee successfully with valid data")
+        void shouldCreateEmployeeSuccessfully() {
+            // Arrange
+            when(userPersistencePort.existsByEmail(anyString())).thenReturn(false);
+            when(userPersistencePort.existsByIdentityDocument(anyString())).thenReturn(false);
+            when(rolePersistencePort.findByName(EMPLOYEE_ROLE_NAME)).thenReturn(Optional.of(employeeRole));
+            when(passwordEncoderPort.encode(anyString())).thenReturn(ENCODED_PASSWORD);
+            when(userPersistencePort.saveUser(any(User.class))).thenAnswer(invocation -> {
+                User user = invocation.getArgument(0);
+                user.setId(1L);
+                return user;
+            });
+
+            // Act
+            User result = userUseCase.createEmployee(validEmployee);
+
+            // Assert
+            assertNotNull(result);
+            assertNotNull(result.getId());
+            assertEquals(employeeRole, result.getRole());
+            assertEquals(ENCODED_PASSWORD, result.getPassword());
+            assertEquals(RESTAURANT_ID, result.getRestaurantId());
+            verify(userPersistencePort).saveUser(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Should create employee without birth date")
+        void shouldCreateEmployeeWithoutBirthDate() {
+            // Arrange
+            validEmployee.setBirthDate(null);
+            when(userPersistencePort.existsByEmail(anyString())).thenReturn(false);
+            when(userPersistencePort.existsByIdentityDocument(anyString())).thenReturn(false);
+            when(rolePersistencePort.findByName(EMPLOYEE_ROLE_NAME)).thenReturn(Optional.of(employeeRole));
+            when(passwordEncoderPort.encode(anyString())).thenReturn(ENCODED_PASSWORD);
+            when(userPersistencePort.saveUser(any(User.class))).thenReturn(validEmployee);
+
+            // Act
+            User result = userUseCase.createEmployee(validEmployee);
+
+            // Assert
+            assertNotNull(result);
+            assertNull(result.getBirthDate());
+            verify(userPersistencePort).saveUser(any(User.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("Create Employee - Validation Errors")
+    class CreateEmployeeValidationErrors {
+
+        private User invalidEmployee;
+
+        @BeforeEach
+        void setUp() {
+
+            invalidEmployee = new User();
+            invalidEmployee.setFirstName("Carlos");
+            invalidEmployee.setLastName("García");
+            invalidEmployee.setIdentityDocument("987654321");
+            invalidEmployee.setPhone("+573009876543");
+            invalidEmployee.setEmail("carlos.garcia@email.com");
+            invalidEmployee.setPassword("employee123");
+            invalidEmployee.setRestaurantId(RESTAURANT_ID);
+        }
+
+        @Test
+        @DisplayName("Should throw exception when email is invalid")
+        void shouldThrowExceptionWhenEmailIsInvalid() {
+            // Arrange
+            invalidEmployee.setEmail("invalid-email");
+
+            // Act & Assert
+            assertThrows(InvalidEmailException.class, () -> userUseCase.createEmployee(invalidEmployee));
+            verify(userPersistencePort, never()).saveUser(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Should throw exception when phone is invalid")
+        void shouldThrowExceptionWhenPhoneIsInvalid() {
+            // Arrange
+            invalidEmployee.setPhone("invalid-phone");
+
+            // Act & Assert
+            assertThrows(InvalidPhoneException.class, () -> userUseCase.createEmployee(invalidEmployee));
+            verify(userPersistencePort, never()).saveUser(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Should throw exception when document is invalid")
+        void shouldThrowExceptionWhenDocumentIsInvalid() {
+            // Arrange
+            invalidEmployee.setIdentityDocument("ABC123");
+
+            // Act & Assert
+            assertThrows(InvalidDocumentException.class, () -> userUseCase.createEmployee(invalidEmployee));
+            verify(userPersistencePort, never()).saveUser(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Should throw exception when restaurant ID is null")
+        void shouldThrowExceptionWhenRestaurantIdIsNull() {
+            // Arrange
+            invalidEmployee.setRestaurantId(null);
+
+            // Act & Assert
+            assertThrows(InvalidRestaurantException.class, () -> userUseCase.createEmployee(invalidEmployee));
+            verify(userPersistencePort, never()).saveUser(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Should throw exception when email already exists")
+        void shouldThrowExceptionWhenEmailAlreadyExists() {
+            // Arrange
+            when(userPersistencePort.existsByEmail(invalidEmployee.getEmail())).thenReturn(true);
+
+            // Act & Assert
+            assertThrows(UserAlreadyExistsException.class, () -> userUseCase.createEmployee(invalidEmployee));
+            verify(userPersistencePort, never()).saveUser(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Should throw exception when document already exists")
+        void shouldThrowExceptionWhenDocumentAlreadyExists() {
+            // Arrange
+            when(userPersistencePort.existsByEmail(anyString())).thenReturn(false);
+            when(userPersistencePort.existsByIdentityDocument(invalidEmployee.getIdentityDocument())).thenReturn(true);
+
+            // Act & Assert
+            assertThrows(UserAlreadyExistsException.class, () -> userUseCase.createEmployee(invalidEmployee));
+            verify(userPersistencePort, never()).saveUser(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Should throw exception when employee role does not exist")
+        void shouldThrowExceptionWhenEmployeeRoleDoesNotExist() {
+            // Arrange
+            when(userPersistencePort.existsByEmail(anyString())).thenReturn(false);
+            when(userPersistencePort.existsByIdentityDocument(anyString())).thenReturn(false);
+            when(rolePersistencePort.findByName(EMPLOYEE_ROLE_NAME)).thenReturn(Optional.empty());
+
+            // Act & Assert
+            assertThrows(RoleNotFoundException.class, () -> userUseCase.createEmployee(invalidEmployee));
+            verify(userPersistencePort, never()).saveUser(any(User.class));
         }
     }
 }

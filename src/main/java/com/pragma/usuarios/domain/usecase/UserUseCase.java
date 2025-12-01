@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 public class UserUseCase implements IUserServicePort {
 
     private static final String ROLE_OWNER = "OWNER";
+    private static final String ROLE_EMPLOYEE = "EMPLOYEE";
     private static final int MINIMUM_AGE = 18;
     private static final int MAX_PHONE_LENGTH = 13;
 
@@ -58,6 +59,29 @@ public class UserUseCase implements IUserServicePort {
         user.setPassword(passwordEncoderPort.encode(user.getPassword()));
 
         return userPersistencePort.saveUser(user);
+    }
+
+    @Override
+    public User createEmployee(User user) {
+        validateEmail(user.getEmail());
+        validatePhone(user.getPhone());
+        validateDocument(user.getIdentityDocument());
+        validateUserDoesNotExist(user.getEmail(), user.getIdentityDocument());
+        validateRestaurantId(user.getRestaurantId());
+
+        Role employeeRole = rolePersistencePort.findByName(ROLE_EMPLOYEE)
+                .orElseThrow(() -> new RoleNotFoundException("Role EMPLOYEE does not exist in the system"));
+
+        user.setRole(employeeRole);
+        user.setPassword(passwordEncoderPort.encode(user.getPassword()));
+
+        return userPersistencePort.saveUser(user);
+    }
+
+    private void validateRestaurantId(Long restaurantId) {
+        if (restaurantId == null) {
+            throw new InvalidRestaurantException("Restaurant ID is required for employee creation");
+        }
     }
 
     private void validateEmail(String email) {

@@ -8,5 +8,7 @@ public interface IUserServicePort {
 
     User createOwner(User user);
 
+    User createEmployee(User user);
+
     Optional<User> getUserById(Long id);
 }
