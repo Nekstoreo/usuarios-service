@@ -1,5 +1,6 @@
 package com.pragma.usuarios.infrastructure.input.rest.controller;
 
+import com.pragma.usuarios.application.dto.request.CreateClientRequest;
 import com.pragma.usuarios.application.dto.request.CreateEmployeeRequest;
 import com.pragma.usuarios.application.dto.request.CreateOwnerRequest;
 import com.pragma.usuarios.application.dto.response.UserResponse;
@@ -83,6 +84,27 @@ public class UserRestController {
     @PostMapping("/employees")
     public ResponseEntity<UserResponse> createEmployee(@Valid @RequestBody CreateEmployeeRequest request) {
         UserResponse response = userHandler.createEmployee(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(summary = "Create client",
+            description = "Creates a user account with CLIENT role. Any user can perform this action.",
+            security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201",
+                    description = "Client created successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = UserResponse.class))),
+            @ApiResponse(responseCode = "400",
+                    description = "Invalid input data",
+                    content = @Content),
+            @ApiResponse(responseCode = "409",
+                    description = "User already exists with the provided email or document",
+                    content = @Content)
+    })
+    @PostMapping("/clients")
+    public ResponseEntity<UserResponse> createClient(@Valid @RequestBody CreateClientRequest request) {
+        UserResponse response = userHandler.createClient(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
