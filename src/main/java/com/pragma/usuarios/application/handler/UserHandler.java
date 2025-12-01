@@ -9,6 +9,8 @@ import com.pragma.usuarios.domain.model.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @Transactional
 public class UserHandler implements IUserHandler {
@@ -30,5 +32,12 @@ public class UserHandler implements IUserHandler {
         User user = userRequestMapper.toUser(createOwnerRequest);
         User savedUser = userServicePort.createOwner(user);
         return userResponseMapper.toResponse(savedUser);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<UserResponse> getUserById(Long id) {
+        return userServicePort.getUserById(id)
+                .map(userResponseMapper::toResponse);
     }
 }
