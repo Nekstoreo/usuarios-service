@@ -25,6 +25,11 @@ spring:
     init:
       mode: always
 
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:plazoleta-secret-key-for-jwt-token-generation-must-be-at-least-256-bits}
+  expiration-ms: ${JWT_EXPIRATION:86400000}
+
 # OpenAPI / Swagger
 springdoc:
   api-docs:
