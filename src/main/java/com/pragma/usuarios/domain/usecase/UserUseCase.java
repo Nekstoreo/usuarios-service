@@ -10,6 +10,7 @@ import com.pragma.usuarios.domain.spi.IUserPersistencePort;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class UserUseCase implements IUserServicePort {
@@ -99,5 +100,10 @@ public class UserUseCase implements IUserServicePort {
         if (userPersistencePort.existsByIdentityDocument(document)) {
             throw new UserAlreadyExistsException("A user already exists with document: " + document);
         }
+    }
+
+    @Override
+    public Optional<User> getUserById(Long id) {
+        return userPersistencePort.findById(id);
     }
 }
