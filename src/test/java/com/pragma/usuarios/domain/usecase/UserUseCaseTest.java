@@ -15,6 +15,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
+
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -678,33 +682,13 @@ class UserUseCaseTest {
             verify(userPersistencePort, never()).saveUser(any(User.class));
         }
 
-        @Test
-        @DisplayName("Should throw exception when phone is null")
-        void shouldThrowExceptionWhenPhoneIsNull() {
+        @ParameterizedTest
+        @NullSource
+        @ValueSource(strings = {"+5730012345678901", "300-123-4567"})
+        @DisplayName("Should throw exception when phone is invalid (null, too long, or contains invalid characters)")
+        void shouldThrowExceptionForInvalidPhone(String phone) {
             // Arrange
-            invalidClient.setPhone(null);
-
-            // Act & Assert
-            assertThrows(InvalidPhoneException.class, () -> userUseCase.createClient(invalidClient));
-            verify(userPersistencePort, never()).saveUser(any(User.class));
-        }
-
-        @Test
-        @DisplayName("Should throw exception when phone exceeds 13 characters")
-        void shouldThrowExceptionWhenPhoneExceeds13Characters() {
-            // Arrange
-            invalidClient.setPhone("+5730012345678901");
-
-            // Act & Assert
-            assertThrows(InvalidPhoneException.class, () -> userUseCase.createClient(invalidClient));
-            verify(userPersistencePort, never()).saveUser(any(User.class));
-        }
-
-        @Test
-        @DisplayName("Should throw exception when phone contains invalid characters")
-        void shouldThrowExceptionWhenPhoneContainsInvalidCharacters() {
-            // Arrange
-            invalidClient.setPhone("300-123-4567");
+            invalidClient.setPhone(phone);
 
             // Act & Assert
             assertThrows(InvalidPhoneException.class, () -> userUseCase.createClient(invalidClient));
@@ -770,5 +754,4 @@ class UserUseCaseTest {
         }
     }
 }
-
 
