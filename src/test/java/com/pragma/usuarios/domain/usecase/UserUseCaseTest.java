@@ -28,6 +28,7 @@ class UserUseCaseTest {
 
     private static final String OWNER_ROLE_NAME = "OWNER";
     private static final String EMPLOYEE_ROLE_NAME = "EMPLOYEE";
+    private static final String CLIENT_ROLE_NAME = "CLIENT";
     private static final String ENCODED_PASSWORD = "encodedPassword";
     private static final String OWNER_EMAIL = "juan.perez@email.com";
     private static final String OWNER_LAST_NAME = "Pérez";
@@ -551,4 +552,223 @@ class UserUseCaseTest {
             verify(userPersistencePort, never()).saveUser(any(User.class));
         }
     }
+
+    @Nested
+    @DisplayName("Create Client - Success Cases")
+    class CreateClientSuccessCases {
+
+        private User validClient;
+        private Role clientRole;
+
+        @BeforeEach
+        void setUp() {
+            clientRole = new Role(4L, CLIENT_ROLE_NAME, "Platform client");
+
+            validClient = new User();
+            validClient.setFirstName("María");
+            validClient.setLastName("Rodríguez");
+            validClient.setIdentityDocument("456789123");
+            validClient.setPhone("+573005554321");
+            validClient.setEmail("maria.rodriguez@email.com");
+            validClient.setPassword("client123");
+        }
+
+        @Test
+        @DisplayName("Should create client successfully with valid data")
+        void shouldCreateClientSuccessfully() {
+            // Arrange
+            when(userPersistencePort.existsByEmail(anyString())).thenReturn(false);
+            when(userPersistencePort.existsByIdentityDocument(anyString())).thenReturn(false);
+            when(rolePersistencePort.findByName(CLIENT_ROLE_NAME)).thenReturn(Optional.of(clientRole));
+            when(passwordEncoderPort.encode(anyString())).thenReturn(ENCODED_PASSWORD);
+            when(userPersistencePort.saveUser(any(User.class))).thenAnswer(invocation -> {
+                User user = invocation.getArgument(0);
+                user.setId(1L);
+                return user;
+            });
+
+            // Act
+            User result = userUseCase.createClient(validClient);
+
+            // Assert
+            assertNotNull(result);
+            assertNotNull(result.getId());
+            assertEquals(clientRole, result.getRole());
+            assertEquals(ENCODED_PASSWORD, result.getPassword());
+            assertNull(result.getBirthDate());
+            verify(userPersistencePort).saveUser(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Should create client without birth date")
+        void shouldCreateClientWithoutBirthDate() {
+            // Arrange
+            validClient.setBirthDate(null);
+            when(userPersistencePort.existsByEmail(anyString())).thenReturn(false);
+            when(userPersistencePort.existsByIdentityDocument(anyString())).thenReturn(false);
+            when(rolePersistencePort.findByName(CLIENT_ROLE_NAME)).thenReturn(Optional.of(clientRole));
+            when(passwordEncoderPort.encode(anyString())).thenReturn(ENCODED_PASSWORD);
+            when(userPersistencePort.saveUser(any(User.class))).thenReturn(validClient);
+
+            // Act
+            User result = userUseCase.createClient(validClient);
+
+            // Assert
+            assertNotNull(result);
+            assertNull(result.getBirthDate());
+            verify(userPersistencePort).saveUser(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Should create client with phone containing + symbol")
+        void shouldCreateClientWithPhoneContainingPlusSymbol() {
+            // Arrange
+            validClient.setPhone("+573005698325");
+            when(userPersistencePort.existsByEmail(anyString())).thenReturn(false);
+            when(userPersistencePort.existsByIdentityDocument(anyString())).thenReturn(false);
+            when(rolePersistencePort.findByName(CLIENT_ROLE_NAME)).thenReturn(Optional.of(clientRole));
+            when(passwordEncoderPort.encode(anyString())).thenReturn(ENCODED_PASSWORD);
+            when(userPersistencePort.saveUser(any(User.class))).thenReturn(validClient);
+
+            // Act
+            User result = userUseCase.createClient(validClient);
+
+            // Assert
+            assertNotNull(result);
+            verify(userPersistencePort).saveUser(any(User.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("Create Client - Validation Errors")
+    class CreateClientValidationErrors {
+
+        private User invalidClient;
+
+        @BeforeEach
+        void setUp() {
+            invalidClient = new User();
+            invalidClient.setFirstName("María");
+            invalidClient.setLastName("Rodríguez");
+            invalidClient.setIdentityDocument("456789123");
+            invalidClient.setPhone("+573005554321");
+            invalidClient.setEmail("maria.rodriguez@email.com");
+            invalidClient.setPassword("client123");
+        }
+
+        @Test
+        @DisplayName("Should throw exception when email is null")
+        void shouldThrowExceptionWhenEmailIsNull() {
+            // Arrange
+            invalidClient.setEmail(null);
+
+            // Act & Assert
+            assertThrows(InvalidEmailException.class, () -> userUseCase.createClient(invalidClient));
+            verify(userPersistencePort, never()).saveUser(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Should throw exception when email format is invalid")
+        void shouldThrowExceptionWhenEmailFormatIsInvalid() {
+            // Arrange
+            invalidClient.setEmail("invalid-email");
+
+            // Act & Assert
+            assertThrows(InvalidEmailException.class, () -> userUseCase.createClient(invalidClient));
+            verify(userPersistencePort, never()).saveUser(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Should throw exception when phone is null")
+        void shouldThrowExceptionWhenPhoneIsNull() {
+            // Arrange
+            invalidClient.setPhone(null);
+
+            // Act & Assert
+            assertThrows(InvalidPhoneException.class, () -> userUseCase.createClient(invalidClient));
+            verify(userPersistencePort, never()).saveUser(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Should throw exception when phone exceeds 13 characters")
+        void shouldThrowExceptionWhenPhoneExceeds13Characters() {
+            // Arrange
+            invalidClient.setPhone("+5730012345678901");
+
+            // Act & Assert
+            assertThrows(InvalidPhoneException.class, () -> userUseCase.createClient(invalidClient));
+            verify(userPersistencePort, never()).saveUser(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Should throw exception when phone contains invalid characters")
+        void shouldThrowExceptionWhenPhoneContainsInvalidCharacters() {
+            // Arrange
+            invalidClient.setPhone("300-123-4567");
+
+            // Act & Assert
+            assertThrows(InvalidPhoneException.class, () -> userUseCase.createClient(invalidClient));
+            verify(userPersistencePort, never()).saveUser(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Should throw exception when document is null")
+        void shouldThrowExceptionWhenDocumentIsNull() {
+            // Arrange
+            invalidClient.setIdentityDocument(null);
+
+            // Act & Assert
+            assertThrows(InvalidDocumentException.class, () -> userUseCase.createClient(invalidClient));
+            verify(userPersistencePort, never()).saveUser(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Should throw exception when document contains non-numeric characters")
+        void shouldThrowExceptionWhenDocumentContainsNonNumericCharacters() {
+            // Arrange
+            invalidClient.setIdentityDocument("ABC123XYZ");
+
+            // Act & Assert
+            assertThrows(InvalidDocumentException.class, () -> userUseCase.createClient(invalidClient));
+            verify(userPersistencePort, never()).saveUser(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Should throw exception when email already exists")
+        void shouldThrowExceptionWhenEmailAlreadyExists() {
+            // Arrange
+            when(userPersistencePort.existsByEmail(invalidClient.getEmail())).thenReturn(true);
+
+            // Act & Assert
+            assertThrows(UserAlreadyExistsException.class, () -> userUseCase.createClient(invalidClient));
+            verify(userPersistencePort, never()).saveUser(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Should throw exception when document already exists")
+        void shouldThrowExceptionWhenDocumentAlreadyExists() {
+            // Arrange
+            when(userPersistencePort.existsByEmail(anyString())).thenReturn(false);
+            when(userPersistencePort.existsByIdentityDocument(invalidClient.getIdentityDocument())).thenReturn(true);
+
+            // Act & Assert
+            assertThrows(UserAlreadyExistsException.class, () -> userUseCase.createClient(invalidClient));
+            verify(userPersistencePort, never()).saveUser(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Should throw exception when client role does not exist")
+        void shouldThrowExceptionWhenClientRoleDoesNotExist() {
+            // Arrange
+            when(userPersistencePort.existsByEmail(anyString())).thenReturn(false);
+            when(userPersistencePort.existsByIdentityDocument(anyString())).thenReturn(false);
+            when(rolePersistencePort.findByName(CLIENT_ROLE_NAME)).thenReturn(Optional.empty());
+
+            // Act & Assert
+            assertThrows(RoleNotFoundException.class, () -> userUseCase.createClient(invalidClient));
+            verify(userPersistencePort, never()).saveUser(any(User.class));
+        }
+    }
 }
+
+

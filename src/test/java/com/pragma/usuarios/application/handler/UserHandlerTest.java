@@ -1,5 +1,6 @@
 package com.pragma.usuarios.application.handler;
 
+import com.pragma.usuarios.application.dto.request.CreateClientRequest;
 import com.pragma.usuarios.application.dto.request.CreateEmployeeRequest;
 import com.pragma.usuarios.application.dto.request.CreateOwnerRequest;
 import com.pragma.usuarios.application.dto.response.UserResponse;
@@ -32,6 +33,7 @@ class UserHandlerTest {
     private static final String OWNER_PHONE = "+573001234567";
     private static final String OWNER_ROLE = "OWNER";
     private static final String EMPLOYEE_ROLE = "EMPLOYEE";
+    private static final String CLIENT_ROLE = "CLIENT";
     private static final String OWNER_LAST_NAME = "Pérez";
     private static final String OWNER_IDENTITY_DOCUMENT = "123456789";
     private static final String ENCODED_PASSWORD = "encodedPassword";
@@ -278,6 +280,126 @@ class UserHandlerTest {
 
             // Assert
             verify(userServicePort).createEmployee(employeeUser);
+        }
+    }
+
+    @Nested
+    @DisplayName("Create Client Tests")
+    class CreateClientTests {
+
+        private CreateClientRequest createClientRequest;
+        private User clientUser;
+        private User savedClientUser;
+        private UserResponse clientResponse;
+
+        @BeforeEach
+        void setUp() {
+            createClientRequest = new CreateClientRequest(
+                    "María",
+                    "Rodríguez",
+                    "456789123",
+                    "+573005554321",
+                    "maria.rodriguez@email.com",
+                    "client123"
+            );
+
+            clientUser = new User();
+            clientUser.setFirstName("María");
+            clientUser.setLastName("Rodríguez");
+            clientUser.setIdentityDocument("456789123");
+            clientUser.setPhone("+573005554321");
+            clientUser.setEmail("maria.rodriguez@email.com");
+            clientUser.setPassword("client123");
+
+            Role clientRole = new Role(4L, CLIENT_ROLE, "Platform client");
+
+            savedClientUser = new User();
+            savedClientUser.setId(3L);
+            savedClientUser.setFirstName("María");
+            savedClientUser.setLastName("Rodríguez");
+            savedClientUser.setIdentityDocument("456789123");
+            savedClientUser.setPhone("+573005554321");
+            savedClientUser.setEmail("maria.rodriguez@email.com");
+            savedClientUser.setPassword(ENCODED_PASSWORD);
+            savedClientUser.setRole(clientRole);
+
+            clientResponse = UserResponse.builder()
+                    .id(3L)
+                    .firstName("María")
+                    .lastName("Rodríguez")
+                    .identityDocument("456789123")
+                    .phone("+573005554321")
+                    .email("maria.rodriguez@email.com")
+                    .role(CLIENT_ROLE)
+                    .build();
+        }
+
+        @Test
+        @DisplayName("Should create client and return response")
+        void shouldCreateClientAndReturnResponse() {
+            // Arrange
+            when(userRequestMapper.toUser(createClientRequest)).thenReturn(clientUser);
+            when(userServicePort.createClient(clientUser)).thenReturn(savedClientUser);
+            when(userResponseMapper.toResponse(savedClientUser)).thenReturn(clientResponse);
+
+            // Act
+            UserResponse result = userHandler.createClient(createClientRequest);
+
+            // Assert
+            assertNotNull(result);
+            assertEquals(3L, result.getId());
+            assertEquals("María", result.getFirstName());
+            assertEquals("Rodríguez", result.getLastName());
+            assertEquals(CLIENT_ROLE, result.getRole());
+
+            verify(userRequestMapper).toUser(createClientRequest);
+            verify(userServicePort).createClient(clientUser);
+            verify(userResponseMapper).toResponse(savedClientUser);
+        }
+
+        @Test
+        @DisplayName("Should call mapper to convert request to domain model for client")
+        void shouldCallMapperToConvertRequestToDomainModelForClient() {
+            // Arrange
+            when(userRequestMapper.toUser(any(CreateClientRequest.class))).thenReturn(clientUser);
+            when(userServicePort.createClient(any(User.class))).thenReturn(savedClientUser);
+            when(userResponseMapper.toResponse(any(User.class))).thenReturn(clientResponse);
+
+            // Act
+            userHandler.createClient(createClientRequest);
+
+            // Assert
+            verify(userRequestMapper).toUser(createClientRequest);
+        }
+
+        @Test
+        @DisplayName("Should call service port to create client")
+        void shouldCallServicePortToCreateClient() {
+            // Arrange
+            when(userRequestMapper.toUser(any(CreateClientRequest.class))).thenReturn(clientUser);
+            when(userServicePort.createClient(any(User.class))).thenReturn(savedClientUser);
+            when(userResponseMapper.toResponse(any(User.class))).thenReturn(clientResponse);
+
+            // Act
+            userHandler.createClient(createClientRequest);
+
+            // Assert
+            verify(userServicePort).createClient(clientUser);
+        }
+
+        @Test
+        @DisplayName("Should call mapper to convert saved client to response")
+        void shouldCallMapperToConvertSavedClientToResponse() {
+            // Arrange
+            when(userRequestMapper.toUser(any(CreateClientRequest.class))).thenReturn(clientUser);
+            when(userServicePort.createClient(any(User.class))).thenReturn(savedClientUser);
+            when(userResponseMapper.toResponse(any(User.class))).thenReturn(clientResponse);
+
+            // Act
+            userHandler.createClient(createClientRequest);
+
+            // Assert
+            verify(userResponseMapper).toResponse(savedClientUser);
         }
     }
 
