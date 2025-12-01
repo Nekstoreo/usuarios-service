@@ -20,12 +20,10 @@ public interface UserRequestMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "role", ignore = true)
-    @Mapping(target = "birthDate", ignore = true)
     User toUser(CreateEmployeeRequest createEmployeeRequest);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "role", ignore = true)
-    @Mapping(target = "birthDate", ignore = true)
     @Mapping(target = "restaurantId", ignore = true)
     User toUser(CreateClientRequest createClientRequest);
 }
