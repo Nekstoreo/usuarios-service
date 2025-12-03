@@ -1,5 +1,6 @@
 package com.pragma.usuarios.infrastructure.initialization;
 
+import com.pragma.usuarios.domain.exception.RoleInitializationException;
 import com.pragma.usuarios.infrastructure.configuration.AdminProperties;
 import com.pragma.usuarios.infrastructure.output.jpa.entity.RoleEntity;
 import com.pragma.usuarios.infrastructure.output.jpa.entity.UserEntity;
@@ -12,16 +13,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * DataInitializer is responsible for initializing system data when the application starts.
- * It creates the default admin user if it doesn't exist.
- *
- * This approach is better than inserting directly in data.sql because:
- * - It ensures the password is encoded using the same PasswordEncoder configured in the application
- * - It can validate business rules before insertion
- * - It's more maintainable and testable
- * - It prevents hardcoding passwords in plain files
- */
 @Slf4j
 @Component
 public class DataInitializer {
@@ -52,17 +43,14 @@ public class DataInitializer {
     private void initializeAdminUser() {
         String adminEmail = adminProperties.getEmail();
 
-        // Check if admin already exists
         if (userRepository.findByEmail(adminEmail).isPresent()) {
             log.info("Admin user already exists, skipping creation");
             return;
         }
 
-        // Get or create ADMIN role
         RoleEntity adminRole = roleRepository.findByName("ADMIN")
-                .orElseThrow(() -> new RuntimeException("ADMIN role not found. Make sure data.sql has been executed."));
+                .orElseThrow(() -> new RoleInitializationException("ADMIN role not found. Make sure data.sql has been executed."));
 
-        // Create admin user
         UserEntity adminUser = new UserEntity();
         adminUser.setFirstName(adminProperties.getFirstName());
         adminUser.setLastName(adminProperties.getLastName());
@@ -70,7 +58,7 @@ public class DataInitializer {
         adminUser.setPhone(adminProperties.getPhone());
         adminUser.setBirthDate(adminProperties.getBirthDate());
         adminUser.setEmail(adminEmail);
-        // Encode password using the application's PasswordEncoder
+
         adminUser.setPassword(passwordEncoder.encode(adminProperties.getPassword()));
         adminUser.setRole(adminRole);
 
