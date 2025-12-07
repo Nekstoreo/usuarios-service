@@ -5,3 +5,7 @@ Microservicio encargado de la gestión de usuarios y roles del sistema Plaza de 
 ## Puerto
 
 - **8081**
+
+## Documentación
+
+- Más detalles técnicos en: [Documentación técnica](./docs/usuarios-service-technical-documentation.md)
