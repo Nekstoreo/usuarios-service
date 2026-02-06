@@ -64,7 +64,7 @@ public class JwtAdapter implements IJwtPort {
         try {
             Claims claims = extractAllClaims(token);
             return !claims.getExpiration().before(new Date());
-        } catch (JwtException | IllegalArgumentException e) {
+        } catch (JwtException | IllegalArgumentException _) {
             return false;
         }
     }
