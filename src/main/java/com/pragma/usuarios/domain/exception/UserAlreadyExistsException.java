@@ -1,6 +1,6 @@
 package com.pragma.usuarios.domain.exception;
 
-public class UserAlreadyExistsException extends DomainException {
+public class UserAlreadyExistsException extends BusinessException {
 
     public UserAlreadyExistsException(String message) {
         super(message);

@@ -1,6 +1,6 @@
 package com.pragma.usuarios.domain.exception;
 
-public class UnauthorizedException extends RuntimeException {
+public class UnauthorizedException extends BusinessException {
 
     public UnauthorizedException(String message) {
         super(message);
