@@ -2,6 +2,8 @@ package com.pragma.usuarios.application.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,9 +24,12 @@ public class CreateOwnerRequest {
     private String lastName;
 
     @NotBlank(message = "Identity document is required")
+    @Pattern(regexp = "^\\d+$", message = "Identity document must be numeric only")
     private String identityDocument;
 
     @NotBlank(message = "Phone is required")
+    @Size(max = 13, message = "Phone must have a maximum of 13 characters")
+    @Pattern(regexp = "^\\+?\\d{1,12}$", message = "Phone must be numeric and may contain the + symbol at the start")
     private String phone;
 
     @NotNull(message = "Birth date is required")
