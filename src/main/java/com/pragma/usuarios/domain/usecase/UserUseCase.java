@@ -8,8 +8,6 @@ import com.pragma.usuarios.domain.spi.IPasswordEncoderPort;
 import com.pragma.usuarios.domain.spi.IRolePersistencePort;
 import com.pragma.usuarios.domain.spi.IUserPersistencePort;
 
-import java.time.LocalDate;
-import java.time.Period;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -18,7 +16,6 @@ public class UserUseCase implements IUserServicePort {
     private static final String ROLE_OWNER = "OWNER";
     private static final String ROLE_EMPLOYEE = "EMPLOYEE";
     private static final String ROLE_CLIENT = "CLIENT";
-    private static final int MINIMUM_AGE = 18;
     private static final int MAX_PHONE_LENGTH = 13;
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
@@ -50,7 +47,7 @@ public class UserUseCase implements IUserServicePort {
         validateEmail(user.getEmail());
         validatePhone(user.getPhone());
         validateDocument(user.getIdentityDocument());
-        validateAge(user.getBirthDate());
+        validateAge(user);
         validateUserDoesNotExist(user.getEmail(), user.getIdentityDocument());
 
         Role ownerRole = rolePersistencePort.findByName(ROLE_OWNER)
@@ -121,16 +118,8 @@ public class UserUseCase implements IUserServicePort {
         }
     }
 
-    private void validateAge(LocalDate birthDate) {
-        if (birthDate == null) {
-            throw new UserUnderageException("Birth date is required");
-        }
-
-        int age = Period.between(birthDate, LocalDate.now()).getYears();
-
-        if (age < MINIMUM_AGE) {
-            throw new UserUnderageException("User must be of legal age (18 years or older)");
-        }
+    private void validateAge(User user) {
+        user.validateAge();
     }
 
     private void validateUserDoesNotExist(String email, String document) {

@@ -1,8 +1,12 @@
 package com.pragma.usuarios.domain.model;
 
+import com.pragma.usuarios.domain.exception.UserUnderageException;
 import java.time.LocalDate;
+import java.time.Period;
 
 public class User {
+
+    private static final int MINIMUM_AGE = 18;
 
     private Long id;
     private String firstName;
@@ -118,6 +122,18 @@ public class User {
 
     public void setRestaurantId(Long restaurantId) {
         this.restaurantId = restaurantId;
+    }
+
+    public void validateAge() {
+        if (this.birthDate == null) {
+            throw new UserUnderageException("Birth date is required");
+        }
+
+        int age = Period.between(this.birthDate, LocalDate.now()).getYears();
+
+        if (age < MINIMUM_AGE) {
+            throw new UserUnderageException("User must be of legal age (18 years or older)");
+        }
     }
 
 }
