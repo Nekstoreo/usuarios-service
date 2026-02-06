@@ -1,6 +1,6 @@
 plugins {
     java
-    id("org.springframework.boot") version "4.0.0"
+    id("org.springframework.boot") version "4.0.2"
     id("io.spring.dependency-management") version "1.1.7"
     jacoco
 }
@@ -10,7 +10,7 @@ version = "0.0.1-SNAPSHOT"
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
@@ -29,27 +29,19 @@ extra.apply {
     set("mapstructVersion", "1.6.2")
     set("jjwtVersion", "0.12.5")
     set("postgresVersion", "42.7.3")
-    set("lombokVersion", "1.18.34")
+    set("lombokVersion", "1.18.42")
     set("lombokMapstructBindingVersion", "0.2.0")
 }
 
 dependencies {
-    // --------------------------------------------------------------------------
-    // Compilation and Runtime
-    // --------------------------------------------------------------------------
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("org.springframework.boot:spring-boot-starter-security")
-
-    // OpenAPI / Swagger
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${property("springdocVersion")}")
-
-    // MapStruct
-    implementation("org.mapstruct:mapstruct:${property("mapstructVersion")}")
-
-    // JWT
+    // Implementation
     implementation("io.jsonwebtoken:jjwt-api:${property("jjwtVersion")}")
+    implementation("org.mapstruct:mapstruct:${property("mapstructVersion")}")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${property("springdocVersion")}")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-web")
 
     // Runtime Only
     runtimeOnly("org.postgresql:postgresql:${property("postgresVersion")}")
