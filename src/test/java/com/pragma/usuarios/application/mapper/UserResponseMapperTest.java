@@ -158,8 +158,8 @@ class UserResponseMapperTest {
             minimalUser.setId(USER_ID);
             minimalUser.setFirstName(FIRST_NAME);
             minimalUser.setEmail(EMAIL);
-            Role role = new Role(ROLE_ID, ROLE_NAME, ROLE_DESCRIPTION);
-            minimalUser.setRole(role);
+            Role roleInput = new Role(ROLE_ID, ROLE_NAME, ROLE_DESCRIPTION);
+            minimalUser.setRole(roleInput);
 
             // When
             UserResponse response = userResponseMapper.toResponse(minimalUser);
