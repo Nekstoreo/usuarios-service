@@ -1,6 +1,6 @@
 package com.pragma.usuarios.domain.exception;
 
-public class InvalidCredentialsException extends BusinessException {
+public class InvalidCredentialsException extends DomainException {
 
     public InvalidCredentialsException() {
         super("Invalid email or password");

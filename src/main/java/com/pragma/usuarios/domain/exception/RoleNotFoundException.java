@@ -1,6 +1,6 @@
 package com.pragma.usuarios.domain.exception;
 
-public class RoleNotFoundException extends ResourceException {
+public class RoleNotFoundException extends DomainException {
 
     public RoleNotFoundException(String message) {
         super(message);
