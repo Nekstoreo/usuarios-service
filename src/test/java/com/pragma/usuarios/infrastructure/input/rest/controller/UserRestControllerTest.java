@@ -229,7 +229,10 @@ class UserRestControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath(MESSAGE_JSON_PATH).value("Invalid email format"));
+                    .andExpect(jsonPath(MESSAGE_JSON_PATH).value("Invalid email format"))
+                    .andExpect(jsonPath("$.status").value(400))
+                    .andExpect(jsonPath("$.error").value("Validation Error"))
+                    .andExpect(jsonPath("$.path").value(BASE_URL + OWNERS_ENDPOINT));
         }
 
         @Test
@@ -254,7 +257,10 @@ class UserRestControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath(MESSAGE_JSON_PATH).value("User must be of legal age (18 years or older)"));
+                    .andExpect(jsonPath(MESSAGE_JSON_PATH).value("User must be of legal age (18 years or older)"))
+                    .andExpect(jsonPath("$.status").value(400))
+                    .andExpect(jsonPath("$.error").value("Validation Error"))
+                    .andExpect(jsonPath("$.path").value(BASE_URL + OWNERS_ENDPOINT));
         }
 
         @Test
@@ -279,7 +285,10 @@ class UserRestControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isConflict())
-                    .andExpect(jsonPath(MESSAGE_JSON_PATH).value("A user already exists with email: " + OWNER_EMAIL));
+                    .andExpect(jsonPath(MESSAGE_JSON_PATH).value("A user already exists with email: " + OWNER_EMAIL))
+                    .andExpect(jsonPath("$.status").value(409))
+                    .andExpect(jsonPath("$.error").value("Conflict"))
+                    .andExpect(jsonPath("$.path").value(BASE_URL + OWNERS_ENDPOINT));
         }
     }
 

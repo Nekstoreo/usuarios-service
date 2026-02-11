@@ -39,6 +39,9 @@ class GlobalExceptionHandlerTest {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(UNDERAGE_MESSAGE, response.getBody().getMessage());
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getBody().getStatus());
+        assertEquals("Validation Error", response.getBody().getError());
+        assertEquals(TEST_URI, response.getBody().getPath());
     }
 
     @Test
@@ -48,6 +51,9 @@ class GlobalExceptionHandlerTest {
 
         assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
         assertEquals(CONFLICT_MESSAGE, response.getBody().getMessage());
+        assertEquals(HttpStatus.CONFLICT.value(), response.getBody().getStatus());
+        assertEquals("Conflict", response.getBody().getError());
+        assertEquals(TEST_URI, response.getBody().getPath());
     }
 
     @Test
