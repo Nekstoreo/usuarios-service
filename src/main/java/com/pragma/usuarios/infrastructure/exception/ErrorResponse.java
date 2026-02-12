@@ -12,6 +12,7 @@ public class ErrorResponse {
     private String error;
     private String message;
     private String path;
+    private java.util.Map<String, String> details;
 
     public ErrorResponse() {
         this.timestamp = LocalDateTime.now();
@@ -28,6 +29,15 @@ public class ErrorResponse {
         this.error = error;
         this.message = message;
         this.path = path;
+    }
+
+    public ErrorResponse(int status, String error, String message, String path, java.util.Map<String, String> details) {
+        this.timestamp = LocalDateTime.now();
+        this.status = status;
+        this.error = error;
+        this.message = message;
+        this.path = path;
+        this.details = details;
     }
 
     public LocalDateTime getTimestamp() {
@@ -68,5 +78,13 @@ public class ErrorResponse {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public java.util.Map<String, String> getDetails() {
+        return details;
+    }
+
+    public void setDetails(java.util.Map<String, String> details) {
+        this.details = details;
     }
 }

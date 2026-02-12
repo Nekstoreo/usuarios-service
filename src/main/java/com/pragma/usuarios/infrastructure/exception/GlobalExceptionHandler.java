@@ -17,7 +17,7 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationExceptions(
+    public ResponseEntity<ErrorResponse> handleValidationExceptions(
             MethodArgumentNotValidException ex, HttpServletRequest request) {
 
         Map<String, String> errors = new HashMap<>();
@@ -27,14 +27,17 @@ public class GlobalExceptionHandler {
             errors.put(fieldName, errorMessage);
         });
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", HttpStatus.BAD_REQUEST.value());
-        response.put("error", "Validation Error");
-        response.put("message", "Input data validation error");
-        response.put("details", errors);
-        response.put("path", request.getRequestURI());
+        // Use the first validation message as the main message to keep consistency with domain errors
+        String mainMessage = errors.values().stream().findFirst().orElse("Input data validation error");
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "Validation Error",
+                mainMessage,
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
     @ExceptionHandler({InvalidEmailException.class, InvalidPhoneException.class,

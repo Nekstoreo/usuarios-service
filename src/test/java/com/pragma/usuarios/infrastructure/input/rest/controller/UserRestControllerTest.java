@@ -128,7 +128,11 @@ class UserRestControllerTest {
             mockMvc.perform(post(BASE_URL + OWNERS_ENDPOINT)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
-                    .andExpect(status().isBadRequest());
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.status").value(400))
+                    .andExpect(jsonPath("$.error").value("Validation Error"))
+                    .andExpect(jsonPath("$.message").value("First name is required"))
+                    .andExpect(jsonPath("$.details").doesNotExist());
 
             verify(userHandler, never()).createOwner(any());
         }
@@ -151,7 +155,11 @@ class UserRestControllerTest {
             mockMvc.perform(post(BASE_URL + OWNERS_ENDPOINT)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
-                    .andExpect(status().isBadRequest());
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.status").value(400))
+                    .andExpect(jsonPath("$.error").value("Validation Error"))
+                    .andExpect(jsonPath("$.message").value("Email is required"))
+                    .andExpect(jsonPath("$.details").doesNotExist());
 
             verify(userHandler, never()).createOwner(any());
         }
@@ -174,7 +182,11 @@ class UserRestControllerTest {
             mockMvc.perform(post(BASE_URL + OWNERS_ENDPOINT)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
-                    .andExpect(status().isBadRequest());
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.status").value(400))
+                    .andExpect(jsonPath("$.error").value("Validation Error"))
+                    .andExpect(jsonPath("$.message").value("Birth date is required"))
+                    .andExpect(jsonPath("$.details").doesNotExist());
 
             verify(userHandler, never()).createOwner(any());
         }
@@ -197,7 +209,11 @@ class UserRestControllerTest {
             mockMvc.perform(post(BASE_URL + OWNERS_ENDPOINT)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
-                    .andExpect(status().isBadRequest());
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.status").value(400))
+                    .andExpect(jsonPath("$.error").value("Validation Error"))
+                    .andExpect(jsonPath("$.message").value("Identity document is required"))
+                    .andExpect(jsonPath("$.details").doesNotExist());
 
             verify(userHandler, never()).createOwner(any());
         }
