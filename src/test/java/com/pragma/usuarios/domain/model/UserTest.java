@@ -21,14 +21,21 @@ class UserTest {
 
     @Test
     void user_ShouldStoreDataCorrectly() {
-        Role role = new Role(ROLE_ID, ROLE_NAME, ROLE_DESCRIPTION);
+        Role role = Role.builder().id(ROLE_ID).name(ROLE_NAME).description(ROLE_DESCRIPTION).build();
         LocalDate birthDate = LocalDate.of(1990, 1, 1);
 
-        User user = new User(FIRST_NAME, LAST_NAME, IDENTITY_DOCUMENT, PHONE,
-                birthDate, EMAIL, PASSWORD);
-        user.setId(ROLE_ID);
-        user.setRole(role);
-        user.setRestaurantId(RESTAURANT_ID);
+        User user = User.builder()
+                .firstName(FIRST_NAME)
+                .lastName(LAST_NAME)
+                .identityDocument(IDENTITY_DOCUMENT)
+                .phone(PHONE)
+                .birthDate(birthDate)
+                .email(EMAIL)
+                .password(PASSWORD)
+                .id(ROLE_ID)
+                .role(role)
+                .restaurantId(RESTAURANT_ID)
+                .build();
 
         assertEquals(ROLE_ID, user.getId());
         assertEquals(FIRST_NAME, user.getFirstName());

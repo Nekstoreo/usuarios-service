@@ -27,9 +27,6 @@ class UserEntityMapperTest {
     private static final String IDENTITY_DOCUMENT = "123456789";
     private static final String PHONE = "+573001234567";
     private static final LocalDate BIRTH_DATE = LocalDate.of(1990, 1, 1);
-    private static final String EMAIL = "john.doe@example.com";
-    private static final String PASSWORD = "password123";
-    private static final Long RESTAURANT_ID = 100L;
 
     private static final Long ROLE_ID = 1L;
     private static final String ROLE_NAME = "OWNER";
@@ -53,10 +50,7 @@ class UserEntityMapperTest {
         user.setIdentityDocument(IDENTITY_DOCUMENT);
         user.setPhone(PHONE);
         user.setBirthDate(BIRTH_DATE);
-        user.setEmail(EMAIL);
-        user.setPassword(PASSWORD);
         user.setRole(role);
-        user.setRestaurantId(RESTAURANT_ID);
 
         UserEntity userEntity = userEntityMapper.toEntity(user);
 
@@ -67,9 +61,8 @@ class UserEntityMapperTest {
         assertEquals(IDENTITY_DOCUMENT, userEntity.getIdentityDocument());
         assertEquals(PHONE, userEntity.getPhone());
         assertEquals(BIRTH_DATE, userEntity.getBirthDate());
-        assertEquals(EMAIL, userEntity.getEmail());
-        assertEquals(PASSWORD, userEntity.getPassword());
-        assertEquals(RESTAURANT_ID, userEntity.getRestaurantId());
+        assertNull(userEntity.getCreatedAt());
+        assertNull(userEntity.getUpdatedAt());
         
         assertNotNull(userEntity.getRole());
         assertEquals(ROLE_ID, userEntity.getRole().getId());
@@ -88,10 +81,7 @@ class UserEntityMapperTest {
                 .identityDocument(IDENTITY_DOCUMENT)
                 .phone(PHONE)
                 .birthDate(BIRTH_DATE)
-                .email(EMAIL)
-                .password(PASSWORD)
                 .role(roleEntity)
-                .restaurantId(RESTAURANT_ID)
                 .build();
 
         User user = userEntityMapper.toModel(userEntity);
@@ -103,9 +93,9 @@ class UserEntityMapperTest {
         assertEquals(IDENTITY_DOCUMENT, user.getIdentityDocument());
         assertEquals(PHONE, user.getPhone());
         assertEquals(BIRTH_DATE, user.getBirthDate());
-        assertEquals(EMAIL, user.getEmail());
-        assertEquals(PASSWORD, user.getPassword());
-        assertEquals(RESTAURANT_ID, user.getRestaurantId());
+        assertNull(user.getEmail());
+        assertNull(user.getPassword());
+        assertNull(user.getRestaurantId());
 
         assertNotNull(user.getRole());
         assertEquals(ROLE_ID, user.getRole().getId());
