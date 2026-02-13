@@ -5,6 +5,7 @@ import com.pragma.usuarios.application.dto.request.CreateEmployeeRequest;
 import com.pragma.usuarios.application.dto.request.CreateOwnerRequest;
 import com.pragma.usuarios.application.dto.response.UserResponse;
 import com.pragma.usuarios.application.handler.IUserHandler;
+import com.pragma.usuarios.infrastructure.constant.ApiConstants;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -24,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping(ApiConstants.USERS_BASE_PATH)
 @RequiredArgsConstructor
 @Tag(name = "Users", description = "User management API")
 public class UserRestController {
