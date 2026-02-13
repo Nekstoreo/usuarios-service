@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,14 +25,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/users")
+@RequiredArgsConstructor
 @Tag(name = "Users", description = "User management API")
 public class UserRestController {
 
     private final IUserHandler userHandler;
-
-    public UserRestController(IUserHandler userHandler) {
-        this.userHandler = userHandler;
-    }
 
     @Operation(summary = "Create owner",
             description = "Creates a user account with OWNER role. Only ADMIN can perform this action.",
@@ -124,7 +122,7 @@ public class UserRestController {
                     content = @Content)
     })
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserResponse> getUserById(@PathVariable(name = "id") Long id) {
         return userHandler.getUserById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());

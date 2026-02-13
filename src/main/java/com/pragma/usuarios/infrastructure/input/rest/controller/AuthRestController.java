@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,14 +19,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/auth")
+@RequiredArgsConstructor
 @Tag(name = "Authentication", description = "Authentication API")
 public class AuthRestController {
 
     private final IAuthHandler authHandler;
-
-    public AuthRestController(IAuthHandler authHandler) {
-        this.authHandler = authHandler;
-    }
 
     @Operation(summary = "Login",
             description = "Authenticates a user with email and password")

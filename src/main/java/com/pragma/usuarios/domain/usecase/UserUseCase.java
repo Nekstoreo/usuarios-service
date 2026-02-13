@@ -7,10 +7,12 @@ import com.pragma.usuarios.domain.model.User;
 import com.pragma.usuarios.domain.spi.IPasswordEncoderPort;
 import com.pragma.usuarios.domain.spi.IRolePersistencePort;
 import com.pragma.usuarios.domain.spi.IUserPersistencePort;
+import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+@RequiredArgsConstructor
 public class UserUseCase implements IUserServicePort {
 
     private static final String ROLE_OWNER = "OWNER";
@@ -34,59 +36,38 @@ public class UserUseCase implements IUserServicePort {
     private final IRolePersistencePort rolePersistencePort;
     private final IPasswordEncoderPort passwordEncoderPort;
 
-    public UserUseCase(IUserPersistencePort userPersistencePort,
-                       IRolePersistencePort rolePersistencePort,
-                       IPasswordEncoderPort passwordEncoderPort) {
-        this.userPersistencePort = userPersistencePort;
-        this.rolePersistencePort = rolePersistencePort;
-        this.passwordEncoderPort = passwordEncoderPort;
-    }
-
     @Override
     public User createOwner(User user) {
-        validateEmail(user.getEmail());
-        validatePhone(user.getPhone());
-        validateDocument(user.getIdentityDocument());
+        validateCommon(user);
         validateAge(user);
-        validateUserDoesNotExist(user.getEmail(), user.getIdentityDocument());
-
-        Role ownerRole = rolePersistencePort.findByName(ROLE_OWNER)
-                .orElseThrow(() -> new RoleNotFoundException("Role OWNER does not exist in the system"));
-
-        user.setRole(ownerRole);
-        user.setPassword(passwordEncoderPort.encode(user.getPassword()));
-
-        return userPersistencePort.saveUser(user);
+        return saveWithRole(user, ROLE_OWNER);
     }
 
     @Override
     public User createEmployee(User user) {
-        validateEmail(user.getEmail());
-        validatePhone(user.getPhone());
-        validateDocument(user.getIdentityDocument());
-        validateUserDoesNotExist(user.getEmail(), user.getIdentityDocument());
+        validateCommon(user);
         validateRestaurantId(user.getRestaurantId());
-
-        Role employeeRole = rolePersistencePort.findByName(ROLE_EMPLOYEE)
-                .orElseThrow(() -> new RoleNotFoundException("Role EMPLOYEE does not exist in the system"));
-
-        user.setRole(employeeRole);
-        user.setPassword(passwordEncoderPort.encode(user.getPassword()));
-
-        return userPersistencePort.saveUser(user);
+        return saveWithRole(user, ROLE_EMPLOYEE);
     }
 
     @Override
     public User createClient(User user) {
+        validateCommon(user);
+        return saveWithRole(user, ROLE_CLIENT);
+    }
+
+    private void validateCommon(User user) {
         validateEmail(user.getEmail());
         validatePhone(user.getPhone());
         validateDocument(user.getIdentityDocument());
         validateUserDoesNotExist(user.getEmail(), user.getIdentityDocument());
+    }
 
-        Role clientRole = rolePersistencePort.findByName(ROLE_CLIENT)
-                .orElseThrow(() -> new RoleNotFoundException("Role CLIENT does not exist in the system"));
+    private User saveWithRole(User user, String roleName) {
+        Role role = rolePersistencePort.findByName(roleName)
+                .orElseThrow(() -> new RoleNotFoundException("Role " + roleName + " does not exist in the system"));
 
-        user.setRole(clientRole);
+        user.setRole(role);
         user.setPassword(passwordEncoderPort.encode(user.getPassword()));
 
         return userPersistencePort.saveUser(user);

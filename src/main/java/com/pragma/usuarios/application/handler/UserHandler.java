@@ -8,6 +8,7 @@ import com.pragma.usuarios.application.mapper.UserRequestMapper;
 import com.pragma.usuarios.application.mapper.UserResponseMapper;
 import com.pragma.usuarios.domain.api.IUserServicePort;
 import com.pragma.usuarios.domain.model.User;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,19 +16,12 @@ import java.util.Optional;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class UserHandler implements IUserHandler {
 
     private final IUserServicePort userServicePort;
     private final UserRequestMapper userRequestMapper;
     private final UserResponseMapper userResponseMapper;
-
-    public UserHandler(IUserServicePort userServicePort,
-                       UserRequestMapper userRequestMapper,
-                       UserResponseMapper userResponseMapper) {
-        this.userServicePort = userServicePort;
-        this.userRequestMapper = userRequestMapper;
-        this.userResponseMapper = userResponseMapper;
-    }
 
     @Override
     public UserResponse createOwner(CreateOwnerRequest createOwnerRequest) {
