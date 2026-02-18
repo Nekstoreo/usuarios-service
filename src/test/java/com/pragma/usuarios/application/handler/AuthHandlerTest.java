@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.reset;
 
 @ExtendWith(MockitoExtension.class)
 class AuthHandlerTest {
@@ -58,5 +59,60 @@ class AuthHandlerTest {
         verify(jwtPort).extractUserId(TOKEN);
         verify(jwtPort).extractEmail(TOKEN);
         verify(jwtPort).extractRole(TOKEN);
+    }
+
+    @Test
+    @DisplayName("Should block after consecutive failed attempts")
+    void shouldBlockAfterConsecutiveFailedAttempts() {
+        LoginRequest request = LoginRequest.builder()
+                .email(EMAIL)
+                .password(PASSWORD)
+                .build();
+
+        when(authServicePort.authenticate(EMAIL, PASSWORD)).thenThrow(new com.pragma.usuarios.domain.exception.InvalidCredentialsException());
+
+        // first (MAX_FAILED_ATTEMPTS - 1) attempts -> InvalidCredentialsException
+        for (int i = 0; i < 4; i++) {
+            org.junit.jupiter.api.Assertions.assertThrows(
+                    com.pragma.usuarios.domain.exception.InvalidCredentialsException.class,
+                    () -> authHandler.login(request)
+            );
+        }
+
+        // next attempt should be blocked (TooManyLoginAttemptsException)
+        org.junit.jupiter.api.Assertions.assertThrows(
+                com.pragma.usuarios.domain.exception.TooManyLoginAttemptsException.class,
+                () -> authHandler.login(request)
+        );
+    }
+
+    @Test
+    @DisplayName("Should reset failed attempts after successful login")
+    void shouldResetAttemptsAfterSuccessfulLogin() {
+        LoginRequest request = LoginRequest.builder()
+                .email(EMAIL)
+                .password(PASSWORD)
+                .build();
+
+        // first attempt fails
+        when(authServicePort.authenticate(EMAIL, PASSWORD)).thenThrow(new com.pragma.usuarios.domain.exception.InvalidCredentialsException());
+        org.junit.jupiter.api.Assertions.assertThrows(com.pragma.usuarios.domain.exception.InvalidCredentialsException.class,
+                () -> authHandler.login(request));
+
+        // then a successful login
+        reset(authServicePort, jwtPort);
+        when(authServicePort.authenticate(EMAIL, PASSWORD)).thenReturn(TOKEN);
+        when(jwtPort.extractUserId(TOKEN)).thenReturn(USER_ID);
+        when(jwtPort.extractEmail(TOKEN)).thenReturn(EMAIL);
+        when(jwtPort.extractRole(TOKEN)).thenReturn(ROLE);
+
+        AuthResponse resp = authHandler.login(request);
+        assertThat(resp.getToken()).isEqualTo(TOKEN);
+
+        // after success, a subsequent failed attempt should behave as a new failure (not immediately blocked)
+        reset(authServicePort);
+        when(authServicePort.authenticate(EMAIL, PASSWORD)).thenThrow(new com.pragma.usuarios.domain.exception.InvalidCredentialsException());
+        org.junit.jupiter.api.Assertions.assertThrows(com.pragma.usuarios.domain.exception.InvalidCredentialsException.class,
+                () -> authHandler.login(request));
     }
 }

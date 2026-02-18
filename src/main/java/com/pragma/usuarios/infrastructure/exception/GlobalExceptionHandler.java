@@ -91,6 +91,20 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
     }
 
+    @ExceptionHandler(TooManyLoginAttemptsException.class)
+    public ResponseEntity<ErrorResponse> handleTooManyLoginAttemptsException(
+            TooManyLoginAttemptsException ex, HttpServletRequest request) {
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                org.springframework.http.HttpStatus.TOO_MANY_REQUESTS.value(),
+                "Too Many Requests",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(org.springframework.http.HttpStatus.TOO_MANY_REQUESTS).body(errorResponse);
+    }
+
     @ExceptionHandler({UnauthorizedException.class, AccessDeniedException.class})
     public ResponseEntity<ErrorResponse> handleUnauthorizedException(
             Exception ex, HttpServletRequest request) {
